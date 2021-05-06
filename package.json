@@ -3,5 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "author": "Eddine Omar <eddine.farid@hotmail.fr>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.1.0",
+    "@openzeppelin/test-environment": "^0.1.9",
+    "@openzeppelin/test-helpers": "^0.5.11",
+    "chai": "^4.3.4",
+    "ganache-cli": "^6.12.2",
+    "mocha": "^8.3.2",
+    "truffle": "^5.3.4"
+  }
 }
