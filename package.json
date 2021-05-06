@@ -1,0 +1,7 @@
+{
+  "name": "nft-marketplace",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Eddine Omar <eddine.farid@hotmail.fr>",
+  "license": "MIT"
+}
