@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract PoA is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
+contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
@@ -51,7 +51,7 @@ contract PoA is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         _safeMint(to, tokenId);
     }
 
-    function awardTicket(address _account, string memory _tokenURI)
+    function mintNFT(address _account, string memory _tokenURI)
         public
         returns (uint256)
     {
