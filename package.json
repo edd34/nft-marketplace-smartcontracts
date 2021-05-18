@@ -4,6 +4,12 @@
   "main": "index.js",
   "author": "Eddine Omar <eddine.farid@hotmail.fr>",
   "license": "MIT",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha --no-timeout --exit --recursive"
+  },
   "dependencies": {
     "@openzeppelin/contracts": "^4.1.0",
     "@openzeppelin/test-environment": "^0.1.9",
