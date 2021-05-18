@@ -47,16 +47,13 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         return super.supportsInterface(interfaceId);
     }
 
-    function safeMint(address to, uint256 tokenId) public onlyOwner {
-        _safeMint(to, tokenId);
-    }
-
-    function mintNFT(address _account, string memory _tokenURI)
+    function safeMint(address _account, string memory _tokenURI)
         public
+        onlyOwner
         returns (uint256)
     {
         uint256 newItemId = _tokenIds.current();
-        _mint(_account, newItemId);
+        _safeMint(_account, newItemId);
         _setTokenURI(newItemId, _tokenURI);
         _tokenIds.increment();
         return newItemId;
