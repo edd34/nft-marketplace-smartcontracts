@@ -7,7 +7,8 @@ import "./NFT.sol";
  * Moreover, it includes the basic functionalities of an auction house
  */
 contract SimpleAuction {
-    
+    address NFT_smartcontract_address;
+
     // Array with all auctions
     Auction[] public auctions;
 
@@ -29,8 +30,7 @@ contract SimpleAuction {
         uint256 blockDeadline;
         uint256 startPrice;
         string metadata;
-        uint256 deedId;
-        address deedRepositoryAddress;
+        uint256 tokenId;
         address payable owner;
         bool active;
         bool finalized;
@@ -45,15 +45,13 @@ contract SimpleAuction {
         _;
     }
 
-    /**
-    * dev Guarantees this contract is owner of the given deed/token
-    * param _deedRepositoryAddress address of the deed repository to validate from
-    * param _deedId uint256 ID of the deed which has been registered in the deed repository
-    */
-    modifier contractIsNFTOwner(address _deedRepositoryAddress, uint256 _deedId) {
-        address nftOwner = NFT(_deedRepositoryAddress).ownerOf(_deedId);
-        require(nftOwner == address(this));
-        _;
+    constructor(string memory _name, string memory _symbol) {
+        NFT nft_contract = new NFT(_name, _symbol);
+        NFT_smartcontract_address = address(nft_contract);
+    }
+
+    function getNFTAddress() public view returns(address) {
+        return NFT_smartcontract_address;
     }
 
     /**
@@ -123,7 +121,7 @@ contract SimpleAuction {
         uint256 blockDeadline,
         uint256 startPrice,
         string memory metadata,
-        uint256 deedId,
+        uint256 tokenId,
         address deedRepositoryAddress,
         address owner,
         bool active,
@@ -135,8 +133,8 @@ contract SimpleAuction {
             auc.blockDeadline, 
             auc.startPrice, 
             auc.metadata, 
-            auc.deedId, 
-            auc.deedRepositoryAddress, 
+            auc.tokenId, 
+            NFT_smartcontract_address, 
             auc.owner, 
             auc.active, 
             auc.finalized);
@@ -145,22 +143,23 @@ contract SimpleAuction {
     /**
     * dev Creates an auction with the given informatin
     * param _deedRepositoryAddress address of the DeedRepository contract
-    * param _deedId uint256 of the deed registered in DeedRepository
+    * param _tokenId uint256 of the deed registered in DeedRepository
     * param _auctionTitle string containing auction title
     * param _metadata string containing auction metadata 
     * param _startPrice uint256 starting price of the auction
     * param _blockDeadline uint is the timestamp in which the auction expires
     * return bool whether the auction is created
     */
-    function createAuction(address _deedRepositoryAddress, uint256 _deedId, string memory _auctionTitle, string memory _metadata, uint256 _startPrice, uint _blockDeadline) public contractIsNFTOwner(_deedRepositoryAddress, _deedId) returns(bool) {
+    function createAuction(uint256 _tokenId, string memory _auctionTitle, string memory _metadata, uint256 _startPrice, uint _blockDeadline) public
+    // add modifier isOwner(_tokenId)
+     returns(bool) {
         uint auctionId = auctions.length;
         Auction memory newAuction;
         newAuction.name = _auctionTitle;
         newAuction.blockDeadline = _blockDeadline;
         newAuction.startPrice = _startPrice;
         newAuction.metadata = _metadata;
-        newAuction.deedId = _deedId;
-        newAuction.deedRepositoryAddress = _deedRepositoryAddress;
+        newAuction.tokenId = _tokenId;
         newAuction.owner = payable(msg.sender);
         newAuction.active = true;
         newAuction.finalized = false;
@@ -172,10 +171,9 @@ contract SimpleAuction {
         return true;
     }
 
-    function approveAndTransfer(address _from, address _to, address _deedRepositoryAddress, uint256 _deedId) internal returns(bool) {
-        NFT remoteContract = NFT(_deedRepositoryAddress);
-        remoteContract.approve(_to, _deedId);
-        remoteContract.transferFrom(_from, _to, _deedId);
+    function approveAndTransfer(address _from, address _to, uint256 _tokenId) internal returns(bool) {
+        NFT nftContract = NFT(NFT_smartcontract_address);
+        nftContract.safeTransferFrom(_from, _to, _tokenId);
         return true;
     }
 
@@ -198,10 +196,8 @@ contract SimpleAuction {
         }
 
         // approve and transfer from this contract to auction owner
-        if(approveAndTransfer(address(this), myAuction.owner, myAuction.deedRepositoryAddress, myAuction.deedId)){
-            auctions[_auctionId].active = false;
-            emit AuctionCanceled(msg.sender, _auctionId);
-        }
+        myAuction.active = false;
+        emit AuctionCanceled(msg.sender, _auctionId);
     }
 
     /**
@@ -229,7 +225,7 @@ contract SimpleAuction {
             }
 
             // approve and transfer from this contract to the bid winner 
-            if(approveAndTransfer(address(this), lastBid.from, myAuction.deedRepositoryAddress, myAuction.deedId)){
+            if(approveAndTransfer(address(this), lastBid.from, myAuction.tokenId)){ // TODO update this line
                 auctions[_auctionId].active = false;
                 auctions[_auctionId].finalized = true;
                 emit AuctionFinalized(msg.sender, _auctionId);
