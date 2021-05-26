@@ -12,7 +12,9 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
-    constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {}
+    constructor(string memory _name, string memory _symbol)
+        ERC721(_name, _symbol)
+    {}
 
     function _beforeTokenTransfer(
         address from,
