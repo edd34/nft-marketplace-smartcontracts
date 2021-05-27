@@ -170,13 +170,7 @@ contract SimpleAuction is NFT {
         string memory _metadata,
         uint256 _startPrice,
         uint256 _blockDeadline
-    )
-        public
-        returns (
-            // add modifier isOwnerAuctionAuction(_tokenId)
-            bool
-        )
-    {
+    ) public isOwnerNFT(_tokenId) returns (bool) {
         uint256 auctionId = auctions.length;
         Auction memory newAuction;
         newAuction.name = _auctionTitle;
@@ -239,7 +233,7 @@ contract SimpleAuction is NFT {
         uint256 bidsLength = auctionBids[_auctionId].length;
 
         // 1. if auction not ended just revert
-        if (block.timestamp < myAuction.blockDeadline) revert();
+        require(block.timestamp > myAuction.blockDeadline, "Auction not ended");
 
         // if there are no bids cancel
         if (bidsLength == 0) {
@@ -274,12 +268,12 @@ contract SimpleAuction is NFT {
     function bidOnAuction(uint256 _auctionId) external payable {
         uint256 ethAmountSent = msg.value;
 
-        // owner can't bid on their auctions
         Auction memory myAuction = auctions[_auctionId];
-        if (myAuction.owner == msg.sender) revert();
+        // owner can't bid on their auctions
+        require(myAuction.owner != msg.sender, "Owner can't bid his auction");
 
         // if auction is expired
-        if (block.timestamp > myAuction.blockDeadline) revert();
+        require(block.timestamp < myAuction.blockDeadline, "Auction expired");
 
         uint256 bidsLength = auctionBids[_auctionId].length;
         uint256 tempAmount = myAuction.startPrice;
@@ -291,14 +285,12 @@ contract SimpleAuction is NFT {
             tempAmount = lastBid.amount;
         }
 
-        // check if amound is greater than previous amount
-        if (ethAmountSent < tempAmount) revert();
+        // check if amount is greater than previous amount
+        require(ethAmountSent > tempAmount, "Must bid higher");
 
         // refund the last bidder
         if (bidsLength > 0) {
-            if (!lastBid.from.send(lastBid.amount)) {
-                revert();
-            }
+            payable(lastBid.from).transfer(lastBid.amount);
         }
 
         // insert bid
