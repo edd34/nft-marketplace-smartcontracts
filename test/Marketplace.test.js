@@ -54,4 +54,13 @@ describe("SimpleAuction", () => {
         assert.equal((await mySimpleAuction.ownerOf(0)).toString(), bob);
 
     });
+
+    it("should create a collection and a NFT", async () => {
+        const mySimpleAuction = await SimpleAuction.new("name", "symb", { from: owner });
+        await mySimpleAuction.safeMint(owner, "test.json", { from: owner });
+
+        await mySimpleAuction.createCollection("collectionName", "image.png", {from: owner});
+        collectionCount = await mySimpleAuction.getCollectionCount({from: owner});
+        assert.equal(collectionCount, 1);
+    });
 });
