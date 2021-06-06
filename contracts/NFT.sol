@@ -79,7 +79,7 @@ contract NFT is
         _addNFTtoCollection(_tokenId, _collectionId);
     }
 
-    function removeNFtfromCollection(uint256 _tokenId, uint256 _collectionId) {
+    // function removeNFtfromCollection(uint256 _tokenId, uint256 _collectionId) {
         
-    }
+    // }
 }
